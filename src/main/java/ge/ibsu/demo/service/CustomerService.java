@@ -1,11 +1,15 @@
 package ge.ibsu.demo.service;
 
 import ge.ibsu.demo.dto.AddCustomerDTO;
+import ge.ibsu.demo.dto.Paging;
+import ge.ibsu.demo.dto.SearchCustomer;
 import ge.ibsu.demo.entity.Address;
 import ge.ibsu.demo.entity.Customer;
 import ge.ibsu.demo.repository.AddressRepository;
 import ge.ibsu.demo.repository.CustomerRepository;
+import ge.ibsu.demo.utils.GeneralUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +31,9 @@ public class CustomerService {
         return customerRepository.findById(id).orElse(null);
     }
     @Transactional
-    public Customer addCustomer(AddCustomerDTO addCustomerDTO){
+    public Customer addCustomer(AddCustomerDTO addCustomerDTO) throws Exception {
         Customer customer = new Customer();
-        customer.setFirstName(addCustomerDTO.getFirstName());
-        customer.setLastName(addCustomerDTO.getLastName());
-        customer.setEmail(addCustomerDTO.getEmail());
+        GeneralUtil.getCopyOf(addCustomerDTO,customer);
         customer.setCreateDate(new Date());
         customer.setActive(1);
 
@@ -46,10 +48,17 @@ public class CustomerService {
     @Transactional
     public Customer editCustomer(Long id, AddCustomerDTO addCustomerDTO) throws Exception {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new Exception("customer_not_found"));
-        customer.setFirstName(addCustomerDTO.getFirstName());
-        customer.setLastName(addCustomerDTO.getLastName());
-        customer.setEmail(addCustomerDTO.getEmail());
+        GeneralUtil.getCopyOf(addCustomerDTO,customer);
         customer.getAddress().setAddress(addCustomerDTO.getAddress());
         return customerRepository.save(customer);
+    }
+    public Slice<Customer> search(SearchCustomer searchCustomer, Paging paging){
+        String fullName = null;
+        if(searchCustomer.getFullName() != null && !searchCustomer.getFullName().equals("")){
+            fullName = "%" + searchCustomer.getFullName() +"%";
+        }
+        Pageable pageable= PageRequest.of(paging.getPage() - 1,paging.getSize(), Sort.by(Sort.Direction.ASC, "createDate"));
+        return customerRepository.search(1,fullName,pageable);
+
     }
 }

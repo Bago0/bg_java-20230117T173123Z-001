@@ -13,6 +13,18 @@ public class Address {
     @Column(name = "address")
     private String address;
 
+    @JoinColumn(name = "city_id")
+    @OneToMany(fetch = FetchType.LAZY)
+    private City city_id;
+
+    public City getCity_id() {
+        return city_id;
+    }
+
+    public void setCity_id(City city_id) {
+        this.city_id = city_id;
+    }
+
     public Long getAddressId() {
         return addressId;
     }
