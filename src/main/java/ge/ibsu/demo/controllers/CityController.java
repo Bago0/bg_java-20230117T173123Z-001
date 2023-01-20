@@ -31,7 +31,7 @@ public class CityController {
     }
     @ResponseBody
     @RequestMapping(value = "/add", method = RequestMethod.POST, produces = {"application/json"})
-    public City addCustomer(@RequestBody AddCityDTO rd) throws Exception {
+    public City addCity(@RequestBody AddCityDTO rd) throws Exception {
         GeneralUtil.checkRequiredProperties(rd, Arrays.asList("city_id", "city"));
         return cityService.addCity(rd);
     }
